@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kitab Mağazası</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --qirmizi: #e84545;
+      --tuned: #f5f0eb;
+      --metn: #222;
+      --boz: #777;
+      --xett: #e0d9d0;
+      --kart: #fff;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--tuned);
+      color: var(--metn);
+    }
+
+    /* ---- HEADER ---- */
+    #ust-bar {
+      background: #2c2c54;
+      color: #fff;
+      font-size: 12px;
+      padding: 7px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #ust-bar a { color: #fff; text-decoration: none; margin-left: 12px; font-size: 13px; }
+    #nav-bolum {
+      background: #fff;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--xett);
+    }
+    #logo {
+      width: 40px; height: 40px;
+      background: var(--qirmizi);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px; font-weight: 700;
+      font-family: 'Playfair Display', serif;
+    }
+    #nav-links { display: flex; gap: 6px; }
+    #nav-links a {
+      text-decoration: none; color: var(--boz);
+      font-size: 13px; padding: 6px 10px;
+      border-radius: 4px; transition: color .2s;
+    }
+    #nav-links a:hover, #nav-links a.aktiv { color: var(--qirmizi); }
+    #nav-sagda { display: flex; gap: 16px; align-items: center; }
+    #nav-sagda span { font-size: 19px; cursor: pointer; color: var(--metn); }
+    #nav-sagda span:hover { color: var(--qirmizi); }
+
+    /* ---- BREADCRUMB ---- */
+    #cig-yol {
+      text-align: center;
+      padding: 14px;
+      font-size: 12px;
+      color: var(--boz);
+      background: #f9f5f1;
+      border-bottom: 1px solid var(--xett);
+    }
+    #cig-yol a { color: var(--boz); text-decoration: none; }
+    #cig-yol span { color: var(--qirmizi); }
+
+    /* ---- LAYOUT ---- */
+    #ana-govde {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 16px;
+      display: flex;
+      gap: 24px;
+    }
+
+    /* ---- FILTR PANEL ---- */
+    #filtr-panel {
+      width: 200px;
+      min-width: 180px;
+      flex-shrink: 0;
+    }
+    #filtr-panel h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--metn);
+      margin-bottom: 14px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .filtr-qrup {
+      border-bottom: 1px solid var(--xett);
+      padding: 12px 0;
+    }
+    .filtr-qrup-baslik {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      user-select: none;
+    }
+    .filtr-qrup-baslik:hover { color: var(--qirmizi); }
+    .filtr-qrup-baslik .ox { font-size: 11px; color: var(--boz); transition: transform .2s; }
+    .filtr-qrup-baslik.aciq .ox { transform: rotate(90deg); }
+    .filtr-govde { margin-top: 10px; display: none; flex-direction: column; gap: 7px; }
+    .filtr-govde.gorunen { display: flex; }
+    .filtr-govde label { font-size: 12px; color: #555; display: flex; align-items: center; gap: 7px; cursor: pointer; }
+    .filtr-govde input[type=checkbox] { accent-color: var(--qirmizi); }
+
+    #qiymet-slayder { display: flex; flex-direction: column; gap: 8px; }
+    #qiymet-slayder input[type=range] { accent-color: var(--qirmizi); width: 100%; }
+    #qiymet-goster { font-size: 12px; color: var(--boz); }
+    #filtr-btn {
+      margin-top: 12px;
+      background: var(--qirmizi);
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: .5px;
+      transition: background .2s;
+    }
+    #filtr-btn:hover { background: #c73535; }
+
+    /* ---- MEHSUL BOLUMU ---- */
+    #mehsul-bolum { flex: 1; }
+
+    #mehsul-baslik-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    #mehsul-baslik-bar .say-metn { font-size: 12px; color: var(--boz); }
+    #siralama-qrup { display: flex; align-items: center; gap: 8px; }
+    #siralama-qrup select {
+      border: 1px solid var(--xett);
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      background: #fff;
+      color: var(--metn);
+      cursor: pointer;
+    }
+    #gorunus-duymeleri { display: flex; gap: 6px; }
+    .g-btn {
+      background: none; border: 1px solid var(--xett);
+      border-radius: 4px; padding: 5px 8px;
+      cursor: pointer; font-size: 13px;
+      transition: all .2s;
+    }
+    .g-btn.aktiv, .g-btn:hover { background: var(--qirmizi); color: #fff; border-color: var(--qirmizi); }
+
+    /* ---- KART SEBEKESI ---- */
+    #kart-sebekesi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    #kart-sebekesi.siyahi-gorunus {
+      grid-template-columns: 1fr;
+    }
+
+    .kitab-karti {
+      background: var(--kart);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      transition: transform .25s, box-shadow .25s;
+      position: relative;
+    }
+    .kitab-karti:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.13);
+    }
+    .kitab-resmi-qabi {
+      position: relative;
+      overflow: hidden;
+      background: #f0ebe4;
+      height: 220px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .kitab-resmi-qabi img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .3s;
+    }
+    .kitab-karti:hover .kitab-resmi-qabi img { transform: scale(1.04); }
+
+    .kitab-serbet-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.45);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .25s;
+    }
+    .kitab-karti:hover .kitab-serbet-overlay { opacity: 1; }
+    .sebete-ekle-btn {
+      background: var(--qirmizi);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: .4px;
+      transition: background .2s, transform .15s;
+    }
+    .sebete-ekle-btn:hover { background: #c73535; transform: scale(1.04); }
+    .sebete-ekle-btn.elave-edildi { background: #27ae60; }
+
+    .kitab-melumat {
+      padding: 14px 14px 16px;
+    }
+    .kitab-adi {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--metn);
+      margin-bottom: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .kitab-qiymeti {
+      color: var(--qirmizi);
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .kitab-muellif {
+      font-size: 11.5px;
+      color: var(--boz);
+      margin-bottom: 6px;
+    }
+
+    /* siyahi gorunus */
+    #kart-sebekesi.siyahi-gorunus .kitab-karti {
+      display: flex; flex-direction: row;
+    }
+    #kart-sebekesi.siyahi-gorunus .kitab-resmi-qabi {
+      width: 130px; min-width: 130px; height: auto;
+    }
+    #kart-sebekesi.siyahi-gorunus .kitab-melumat {
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    /* ---- SEHIFELEN ---- */
+    #sehifeleme {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 32px;
+    }
+    .sehife-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--xett);
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .sehife-btn:hover, .sehife-btn.aktiv {
+      background: var(--qirmizi);
+      color: #fff;
+      border-color: var(--qirmizi);
+    }
+
+    /* ---- FOOTER ---- */
+    #asagi {
+      background: var(--qirmizi);
+      color: #fff;
+      padding: 40px 24px 20px;
+      margin-top: 40px;
+    }
+    #asagi-ust {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 40px;
+    }
+    .asagi-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .asagi-logo-ikon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.2);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px;
+    }
+    .asagi-aciq { font-size: 12.5px; opacity: .85; line-height: 1.6; max-width: 240px; }
+    .sosial-ikonlar { display: flex; gap: 10px; margin-top: 16px; }
+    .sosial-ikon {
+      width: 30px; height: 30px;
+      background: rgba(255,255,255,.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; cursor: pointer;
+      transition: background .2s;
+    }
+    .sosial-ikon:hover { background: rgba(255,255,255,.4); }
+    .asagi-baslig {
+      font-size: 13px; font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      opacity: .9;
+    }
+    .asagi-linkler { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .asagi-linkler li a {
+      color: rgba(255,255,255,.8);
+      text-decoration: none;
+      font-size: 12.5px;
+      transition: color .2s;
+    }
+    .asagi-linkler li a:hover { color: #fff; }
+    #asagi-alt {
+      max-width: 1100px;
+      margin: 24px auto 0;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.2);
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      opacity: .75;
+    }
+
+    /* ---- SEBETCIK ---- */
+    #sebet-bildiris {
+      position: fixed;
+      top: 20px; right: 20px;
+      background: #27ae60;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.15);
+      z-index: 9999;
+      display: none;
+      animation: kaydir .3s ease;
+    }
+    @keyframes kaydir {
+      from { transform: translateX(60px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      #ana-govde { flex-direction: column; }
+      #filtr-panel { width: 100%; }
+      #kart-sebekesi { grid-template-columns: repeat(2, 1fr); }
+      #asagi-ust { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      #kart-sebekesi { grid-template-columns: 1fr; }
+      #asagi-ust { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Bildiriş -->
+<div id="sebet-bildiris">✓ Kitab səbətə əlavə edildi!</div>
+
+<!-- Üst bar -->
+<div id="ust-bar">
+  <span>📞 +91 8174602234</span>
+  <div>
+    <a href="#">f</a>
+    <a href="#">in</a>
+    <a href="#">tw</a>
+    <a href="#">yt</a>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav id="nav-bolum">
+  <div id="logo">K</div>
+  <div id="nav-links">
+    <a href="#" class="aktiv">Ana Səhifə</a>
+    <a href="#">Məhsullar</a>
+    <a href="#">Haqqımızda</a>
+    <a href="#">Əlaqə</a>
+  </div>
+  <div id="nav-sagda">
+    <span title="Axtar">🔍</span>
+    <span title="Hesab">👤</span>
+    <span title="Seçilmişlər">♡</span>
+    <span title="Səbət" id="sebet-ikon">🛒 <sup id="sebet-say">0</sup></span>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div id="cig-yol">
+  <a href="#">Ana Səhifə</a> / <span>Məhsullar</span>
+</div>
+
+<!-- Ana -->
+<div id="ana-govde">
+
+  <!-- Filtr -->
+  <aside id="filtr-panel">
+    <h3>Filtr</h3>
+
+    <!-- Qiymət -->
+    <div class="filtr-qrup">
+      <div class="filtr-qrup-baslik aciq" onclick="filtrAc(this)">
+        Qiymət <span class="ox">›</span>
+      </div>
+      <div class="filtr-govde gorunen" id="qiymet-slayder">
+        <input type="range" min="0" max="100" value="80" id="qiym-slider" oninput="qiymGuncelle(this)"/>
+        <span id="qiymet-goster">$0 – $80</span>
+      </div>
+    </div>
+
+    <!-- Növ -->
+    <div class="filtr-qrup">
+      <div class="filtr-qrup-baslik" onclick="filtrAc(this)">
+        Məhsul Növü <span class="ox">›</span>
+      </div>
+      <div class="filtr-govde">
+        <label><input type="checkbox" checked/> Roman</label>
+        <label><input type="checkbox"/> Elmi</label>
+        <label><input type="checkbox" checked/> Uşaq</label>
+        <label><input type="checkbox"/> Tarix</label>
+      </div>
+    </div>
+
+    <!-- Mövcudluq -->
+    <div class="filtr-qrup">
+      <div class="filtr-qrup-baslik" onclick="filtrAc(this)">
+        Mövcudluq <span class="ox">›</span>
+      </div>
+      <div class="filtr-govde">
+        <label><input type="checkbox" checked/> Stokda var</label>
+        <label><input type="checkbox"/> Tükənib</label>
+      </div>
+    </div>
+
+    <!-- Brend -->
+    <div class="filtr-qrup">
+      <div class="filtr-qrup-baslik" onclick="filtrAc(this)">
+        Brend <span class="ox">›</span>
+      </div>
+      <div class="filtr-govde">
+        <label><input type="checkbox" checked/> Penguin</label>
+        <label><input type="checkbox"/> Harper Collins</label>
+        <label><input type="checkbox"/> Simon & Schuster</label>
+      </div>
+    </div>
+
+    <!-- Rəng -->
+    <div class="filtr-qrup">
+      <div class="filtr-qrup-baslik" onclick="filtrAc(this)">
+        Rəng <span class="ox">›</span>
+      </div>
+      <div class="filtr-govde">
+        <label><input type="checkbox"/> Qırmızı</label>
+        <label><input type="checkbox"/> Sarı</label>
+        <label><input type="checkbox" checked/> Mavi</label>
+      </div>
+    </div>
+
+    <button id="filtr-btn" onclick="filtrTetbiq()">Filtr et</button>
+  </aside>
+
+  <!-- Məhsullar -->
+  <main id="mehsul-bolum">
+    <div id="mehsul-baslik-bar">
+      <div>
+        <span class="say-metn" id="say-metn">Göstərilir 1–12 / 24 məhsul  |  Sıra: 12</span>
+      </div>
+      <div id="siralama-qrup">
+        <select id="siralama" onchange="siralama()">
+          <option value="az">Əlifba sırası A–Z</option>
+          <option value="za">Əlifba sırası Z–A</option>
+          <option value="ucuz">Qiymət: ucuzdan bahaya</option>
+          <option value="baha">Qiymət: bahadan ucuza</option>
+          <option value="yeni">Ən yeni</option>
+        </select>
+        <div id="gorunus-duymeleri">
+          <button class="g-btn aktiv" title="Şəbəkə" onclick="gorunusDeyis('sebekesi', this)">⊞</button>
+          <button class="g-btn" title="Siyahı" onclick="gorunusDeyis('siyahi-gorunus', this)">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="kart-sebekesi">
+      <!-- Kartlar JS ilə yaradılır -->
+    </div>
+
+    <div id="sehifeleme"></div>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer id="asagi">
+  <div id="asagi-ust">
+    <div>
+      <div class="asagi-logo">
+        <div class="asagi-logo-ikon">K</div>
+        <strong style="font-size:15px;">KitabEvi</strong>
+      </div>
+      <p class="asagi-aciq">Ən gözəl kitabları ən münasib qiymətə sizinlə buluşduran etibarlı mağazanız.</p>
+      <div class="sosial-ikonlar">
+        <div class="sosial-ikon">f</div>
+        <div class="sosial-ikon">G</div>
+        <div class="sosial-ikon">tw</div>
+        <div class="sosial-ikon">yt</div>
+      </div>
+    </div>
+    <div>
+      <div class="asagi-baslig">Şirkət</div>
+      <ul class="asagi-linkler">
+        <li><a href="#">Ana Səhifə</a></li>
+        <li><a href="#">Haqqımızda</a></li>
+        <li><a href="#">Bloq</a></li>
+        <li><a href="#">Yeniliklər</a></li>
+        <li><a href="#">Əlaqə</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="asagi-baslig">Vacib Linklər</div>
+      <ul class="asagi-linkler">
+        <li><a href="#">Məxfilik Siyasəti</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Xidmət Şərtləri</a></li>
+      </ul>
+    </div>
+  </div>
+  <div id="asagi-alt">
+    <span>© 2025 KitabEvi. Bütün hüquqlar qorunur.</span>
+    <span><a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;">Məxfilik</a> | <a href="#" style="color:rgba(255,255,255,.7);text-decoration:none;">Xidmət Şərtləri</a></span>
+  </div>
+</footer>
+
+<script>
+  // ---- Məhsul datası ----
+  var mehsullar = [
+    { id:1, ad:"Simple Way of Peace Life", muellif:"Sarah Adams", qiymet:49.99, renk:"#f9e4c8", yaziq:"SIMPLI\nWAY OF\nPEACE\nLIFE" },
+    { id:2, ad:"Great Travel Al Desert", muellif:"Mark Twain", qiymet:20.92, renk:"#e84545", yaziq:"MY\nBOOK\nCOVER" },
+    { id:3, ad:"The Lady Beauty Scarlett", muellif:"Jane Doe", qiymet:43.00, renk:"#f5d000", yaziq:"YOUR\nNEXT\nBOOK\nCOVER" },
+    { id:4, ad:"Great Travel Al Desert", muellif:"Alex Jones", qiymet:36.00, renk:"#c8dff0", yaziq:"LEARN\nTO FLY" },
+    { id:5, ad:"The Lady Beauty Scarlett", muellif:"Elena White", qiymet:49.00, renk:"#2c2c54", yaziq:"HYPO-\nCRIZE\nWORLD" },
+    { id:6, ad:"The Lady Beauty Scarlett", muellif:"Paul Black", qiymet:43.00, renk:"#e0d5c5", yaziq:"THE\nLADY\nBEAUTY" },
+    { id:7, ad:"Modern Art History", muellif:"Diana Cole", qiymet:29.99, renk:"#d5e8d4", yaziq:"MODERN\nART" },
+    { id:8, ad:"Ocean of Thoughts", muellif:"Tom Hanks", qiymet:19.50, renk:"#dae8fc", yaziq:"OCEAN\nOF\nTHOUGHTS" },
+    { id:9, ad:"The Red Notebook", muellif:"Lisa Ray", qiymet:15.00, renk:"#f8cecc", yaziq:"RED\nNOTE\nBOOK" },
+    { id:10, ad:"Mountains and Dreams", muellif:"Chris Evans", qiymet:37.00, renk:"#e1d5e7", yaziq:"MOUNTAINS\nAND\nDREAMS" },
+    { id:11, ad:"City of Stars", muellif:"Mia Lee", qiymet:22.00, renk:"#fff2cc", yaziq:"CITY\nOF\nSTARS" },
+    { id:12, ad:"The Last Kingdom", muellif:"Bernard Cornwell", qiymet:55.00, renk:"#d5e8d4", yaziq:"THE\nLAST\nKINGDOM" },
+  ];
+
+  var sebet = [];
+  var carimSehife = 1;
+  var herSehifede = 6;
+  var carimGorunus = 'sebekesi';
+
+  function kartYarat(m) {
+    var div = document.createElement('div');
+    div.className = 'kitab-karti';
+    div.innerHTML =
+      '<div class="kitab-resmi-qabi">' +
+        '<div style="width:100%;height:100%;background:' + m.renk + ';display:flex;align-items:center;justify-content:center;padding:12px;">' +
+          '<div style="color:' + (m.renk==='#e84545'||m.renk==='#2c2c54'?'#fff':'#333') + ';font-family:\'Playfair Display\',serif;font-size:15px;font-weight:700;text-align:center;line-height:1.3;white-space:pre-line;">' + m.yaziq + '</div>' +
+        '</div>' +
+        '<div class="kitab-serbet-overlay">' +
+          '<button class="sebete-ekle-btn" onclick="sebeteEkle(' + m.id + ', this)">+ Səbətə əlavə et</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="kitab-melumat">' +
+        '<div class="kitab-muellif">' + m.muellif + '</div>' +
+        '<div class="kitab-adi">' + m.ad + '</div>' +
+        '<div class="kitab-qiymeti">$' + m.qiymet.toFixed(2) + '</div>' +
+      '</div>';
+    return div;
+  }
+
+  function sehifeGoster(n) {
+    carimSehife = n;
+    var sebeke = document.getElementById('kart-sebekesi');
+    sebeke.innerHTML = '';
+    var bas = (n - 1) * herSehifede;
+    var son = Math.min(bas + herSehifede, mehsullar.length);
+    for (var i = bas; i < son; i++) {
+      sebeke.appendChild(kartYarat(mehsullar[i]));
+    }
+    if (carimGorunus === 'siyahi-gorunus') sebeke.classList.add('siyahi-gorunus');
+    sehifelemeyiGuncelle();
+    document.getElementById('say-metn').textContent =
+      'Göstərilir ' + (bas+1) + '–' + son + ' / ' + mehsullar.length + ' məhsul  |  Sıra: ' + herSehifede;
+  }
+
+  function sehifelemeyiGuncelle() {
+    var cem = Math.ceil(mehsullar.length / herSehifede);
+    var qab = document.getElementById('sehifeleme');
+    qab.innerHTML = '';
+    for (var i = 1; i <= cem; i++) {
+      var btn = document.createElement('button');
+      btn.className = 'sehife-btn' + (i === carimSehife ? ' aktiv' : '');
+      btn.textContent = i;
+      btn.setAttribute('data-s', i);
+      btn.onclick = (function(p){ return function(){ sehifeGoster(p); }; })(i);
+      qab.appendChild(btn);
+    }
+    // Əvvəl / Sonra
+    var evvel = document.createElement('button');
+    evvel.className = 'sehife-btn'; evvel.textContent = '‹';
+    evvel.onclick = function(){ if(carimSehife>1) sehifeGoster(carimSehife-1); };
+    var sonra = document.createElement('button');
+    sonra.className = 'sehife-btn'; sonra.textContent = '›';
+    sonra.onclick = function(){ if(carimSehife<cem) sehifeGoster(carimSehife+1); };
+    qab.insertBefore(evvel, qab.firstChild);
+    qab.appendChild(sonra);
+  }
+
+  function sebeteEkle(id, btn) {
+    sebet.push(id);
+    document.getElementById('sebet-say').textContent = sebet.length;
+    btn.textContent = '✓ Əlavə edildi';
+    btn.classList.add('elave-edildi');
+    setTimeout(function(){ btn.textContent = '+ Səbətə əlavə et'; btn.classList.remove('elave-edildi'); }, 1800);
+    var bil = document.getElementById('sebet-bildiris');
+    bil.style.display = 'block';
+    setTimeout(function(){ bil.style.display = 'none'; }, 2200);
+  }
+
+  function filtrAc(el) {
+    el.classList.toggle('aciq');
+    var govde = el.nextElementSibling;
+    govde.classList.toggle('gorunen');
+  }
+
+  function qiymGuncelle(el) {
+    document.getElementById('qiymet-goster').textContent = '$0 – $' + el.value;
+  }
+
+  function gorunusDeyis(sinif, btn) {
+    document.querySelectorAll('.g-btn').forEach(function(b){ b.classList.remove('aktiv'); });
+    btn.classList.add('aktiv');
+    carimGorunus = sinif;
+    var sebeke = document.getElementById('kart-sebekesi');
+    if (sinif === 'siyahi-gorunus') {
+      sebeke.classList.add('siyahi-gorunus');
+    } else {
+      sebeke.classList.remove('siyahi-gorunus');
+    }
+  }
+
+  function siralama() {
+    var val = document.getElementById('siralama').value;
+    if (val === 'az') mehsullar.sort(function(a,b){ return a.ad.localeCompare(b.ad); });
+    else if (val === 'za') mehsullar.sort(function(a,b){ return b.ad.localeCompare(a.ad); });
+    else if (val === 'ucuz') mehsullar.sort(function(a,b){ return a.qiymet - b.qiymet; });
+    else if (val === 'baha') mehsullar.sort(function(a,b){ return b.qiymet - a.qiymet; });
+    else if (val === 'yeni') mehsullar.sort(function(a,b){ return b.id - a.id; });
+    sehifeGoster(1);
+  }
+
+  function filtrTetbiq() {
+    var max = parseFloat(document.getElementById('qiym-slider').value);
+    var filtrlenmis = mehsullar.filter(function(m){ return m.qiymet <= max; });
+    var sebeke = document.getElementById('kart-sebekesi');
+    sebeke.innerHTML = '';
+    filtrlenmis.forEach(function(m){ sebeke.appendChild(kartYarat(m)); });
+    document.getElementById('say-metn').textContent =
+      'Filtrlənmiş ' + filtrlenmis.length + ' məhsul';
+  }
+
+  // İlk yükləmə
+  sehifeGoster(1);
+</script>
+</body>
+</html>
